@@ -60,8 +60,8 @@ Because Fusion updates our state objects instantly, the button appears to
 changes in our state objects, for example to smooth `position`'s movement.
 
 To achieve this, Fusion introduces 'follower' state objects. When you give them
-some 'goal' state object to follow, they'll smoothly move over time whenever the
-goal changes value:
+some 'goal' state object to follow, they'll smoothly move over time to match
+that goal whenever it changes value:
 
 ![A graph plotting the values of two state objects over time. One of them, the 'goal state', jumps up in value instantly. The other - the 'follower state' - smoothly increases in response.](FollowerGraph.png)
 
