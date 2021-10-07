@@ -7,11 +7,14 @@ local Package = script.Parent.Parent
 local useDependency = require(Package.Dependencies.useDependency)
 local initDependency = require(Package.Dependencies.initDependency)
 local updateAll = require(Package.Dependencies.updateAll)
+local deepEquals = require(Package.Utility.deepEquals)
 
 local class = {}
 
 local CLASS_METATABLE = {__index = class}
 local WEAK_KEYS_METATABLE = {__mode = "k"}
+
+local USE_DEEP_EQUALITY = true
 
 --[[
 	Returns the value currently stored in this State object.
@@ -32,16 +35,30 @@ end
 	state object and any dependents - use this with care as this can lead to
 	unnecessary updates.
 ]]
-function class:set(newValue: any, force: boolean?)
-	-- if the value hasn't changed, no need to perform extra work here
-	if self._value == newValue and not force then
-		return
+if not USE_DEEP_EQUALITY then
+	function class:set(newValue: any, force: boolean?)
+		-- if the value hasn't changed, no need to perform extra work here
+		if self._value == newValue and not force then
+			return
+		end
+
+		self._value = newValue
+
+		-- update any derived state objects if necessary
+		updateAll(self)
 	end
+else
+	function class:set(newValue: any, force: boolean?)
+		-- if the value hasn't changed, no need to perform extra work here
+		if not force and deepEquals(self._value, newValue) then
+			return
+		end
 
-	self._value = newValue
+		self._value = newValue
 
-	-- update any derived state objects if necessary
-	updateAll(self)
+		-- update any derived state objects if necessary
+		updateAll(self)
+	end
 end
 
 local function State(initialValue: any)
